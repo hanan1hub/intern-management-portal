@@ -40,8 +40,13 @@ exports.create = async (req, res, next) => {
       return res.status(409).json({ message: 'An intern with this email already exists' });
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Invalid email address' });
+    }
+
     const plainPassword = generatePassword(name);
-    const password_hash = await bcrypt.hash(plainPassword, 10);
+    const password_hash = await bcrypt.hash(plainPassword, 8);
 
     const result = await pool.query(
       `INSERT INTO interns (name, email, department, joining_date, password_hash)
@@ -50,7 +55,7 @@ exports.create = async (req, res, next) => {
       [name, email, department, joining_date, password_hash]
     );
 
-    // Send credentials email (non-blocking — don't fail the request if email fails)
+    // Non-blocking — response returns immediately; email goes out in background
     sendInternCredentials({ name, email, password: plainPassword }).catch((err) =>
       console.error('Email send failed:', err.message)
     );

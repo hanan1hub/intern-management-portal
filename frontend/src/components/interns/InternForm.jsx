@@ -76,7 +76,12 @@ export default function InternForm({ intern, onSubmit, onClose, error }) {
               <div className="mb-3">
                 <label className="form-label fw-medium">Email <span className="text-danger">*</span></label>
                 <input
-                  type="email"
+                  type="text"
+                  inputMode="email"
+                  autoComplete="email"
+                  autoCorrect="off"
+                  autoCapitalize="none"
+                  spellCheck={false}
                   className={`form-control ${errors.email ? 'is-invalid' : ''}`}
                   value={form.email}
                   onChange={set('email')}
