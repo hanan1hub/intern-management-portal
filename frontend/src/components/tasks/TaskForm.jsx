@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { validateTaskForm } from '../../utils/validators';
 
-const EMPTY = { intern_id: '', title: '', description: '' };
+const EMPTY = { intern_id: '', title: '', description: '', deadline: '' };
 
 export default function TaskForm({ interns, defaultInternId, onSubmit, onClose, error }) {
   const [form, setForm]     = useState({ ...EMPTY, intern_id: defaultInternId || '' });
@@ -17,7 +17,11 @@ export default function TaskForm({ interns, defaultInternId, onSubmit, onClose, 
     setErrors({});
     setLoading(true);
     try {
-      await onSubmit({ ...form, intern_id: parseInt(form.intern_id) });
+      await onSubmit({
+        ...form,
+        intern_id: parseInt(form.intern_id),
+        deadline: form.deadline || null,
+      });
     } finally {
       setLoading(false);
     }
@@ -79,6 +83,33 @@ export default function TaskForm({ interns, defaultInternId, onSubmit, onClose, 
                   onChange={set('description')}
                   placeholder="Add more details..."
                 />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label fw-medium">
+                  Deadline <span className="text-muted small">(optional)</span>
+                </label>
+                <div className="input-group">
+                  <span className="input-group-text bg-light">
+                    <i className="bi bi-calendar-event text-muted" />
+                  </span>
+                  <input
+                    type="datetime-local"
+                    className="form-control"
+                    value={form.deadline}
+                    onChange={set('deadline')}
+                  />
+                  {form.deadline && (
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary"
+                      onClick={() => setForm((p) => ({ ...p, deadline: '' }))}
+                      title="Clear deadline"
+                    >
+                      <i className="bi bi-x" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 

@@ -117,7 +117,6 @@ body {
 
 .main-content {
   min-height: calc(100vh - 60px);
-  padding-left: 60px;
 }
 
 /* ══════════════════════════════════════════
@@ -186,11 +185,12 @@ body {
   .navbar-collapse.show   { display: block !important; padding: 0.75rem 0 1rem; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 0.5rem; }
   .navbar-collapse.collapse { display: none !important; }
   .navbar-nav { gap: 2px !important; }
-  .main-content { padding-left: 0; }
 }
 
 /* ══════════════════════════════════════════
    QUICK ACTIONS — animated left panel
+   Default: mostly hidden (translateX(-30px)), only 14px sliver visible.
+   On hover: slides out fully and expands. No content overlap possible.
 ══════════════════════════════════════════ */
 
 .quick-actions-bar {
@@ -213,18 +213,20 @@ body {
   cursor: pointer;
   overflow: hidden;
   white-space: nowrap;
+  /* hidden by default — only ~14px sliver shows on left edge */
+  transform: translateX(-30px);
   transition: width 0.28s cubic-bezier(0.4,0,0.2,1),
-              box-shadow 0.2s,
-              transform 0.18s;
+              box-shadow 0.22s,
+              transform 0.25s cubic-bezier(0.4,0,0.2,1);
   box-shadow: 2px 2px 10px rgba(0,0,0,0.22);
   padding: 0;
 }
 .qa-btn:hover, .qa-btn--open {
   width: 182px;
   box-shadow: 4px 4px 20px rgba(0,0,0,0.30);
-  transform: translateX(3px);
+  transform: translateX(4px);
 }
-.qa-btn:active { transform: translateX(3px) scale(0.97); }
+.qa-btn:active { transform: translateX(4px) scale(0.97); }
 
 .qa-icon {
   width: 44px; height: 46px;
@@ -245,11 +247,9 @@ body {
 .quick-actions-bar .qa-btn:nth-child(1) { animation: fadeSlideUp 0.4s ease both 0.10s; }
 .quick-actions-bar .qa-btn:nth-child(2) { animation: fadeSlideUp 0.4s ease both 0.18s; }
 .quick-actions-bar .qa-btn:nth-child(3) { animation: fadeSlideUp 0.4s ease both 0.26s; }
-.quick-actions-bar .qa-btn:nth-child(4) { animation: fadeSlideUp 0.4s ease both 0.34s; }
 
 @media (max-width: 575.98px) {
   .quick-actions-bar { display: none; }
-  .main-content { padding-left: 0; }
 }
 
 /* ══════════════════════════════════════════

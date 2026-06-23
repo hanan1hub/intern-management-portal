@@ -29,13 +29,13 @@ exports.getAll = async (req, res, next) => {
 
 exports.create = async (req, res, next) => {
   try {
-    const { intern_id, title, description } = req.body;
+    const { intern_id, title, description, deadline } = req.body;
     const intern = await pool.query('SELECT id FROM interns WHERE id = $1', [intern_id]);
     if (!intern.rows[0]) return res.status(404).json({ message: 'Intern not found' });
 
     const result = await pool.query(
-      'INSERT INTO tasks (intern_id, title, description) VALUES ($1,$2,$3) RETURNING *',
-      [intern_id, title, description || null]
+      'INSERT INTO tasks (intern_id, title, description, deadline) VALUES ($1,$2,$3,$4) RETURNING *',
+      [intern_id, title, description || null, deadline || null]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {

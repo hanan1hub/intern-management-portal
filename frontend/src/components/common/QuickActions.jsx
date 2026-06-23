@@ -2,10 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const ACTIONS = [
-  { icon: 'bi-person-plus-fill', label: 'Add Intern',       color: '#0d6efd', action: 'add-intern'  },
-  { icon: 'bi-plus-square-fill', label: 'Assign Task',      color: '#198754', action: 'assign-task' },
-  { icon: 'bi-calendar-check-fill', label: 'Attendance',    color: '#0dcaf0', action: 'attendance'  },
-  { icon: 'bi-speedometer2',     label: 'Dashboard',        color: '#6f42c1', action: 'dashboard'   },
+  { icon: 'bi-person-plus-fill',    label: 'Add Intern',  color: '#0d6efd', action: 'add-intern'  },
+  { icon: 'bi-plus-square-fill',    label: 'Assign Task', color: '#198754', action: 'assign-task' },
+  { icon: 'bi-calendar-check-fill', label: 'Attendance',  color: '#0dcaf0', action: 'attendance'  },
 ];
 
 export default function QuickActions({ onAddIntern, onAssignTask }) {
@@ -15,8 +14,7 @@ export default function QuickActions({ onAddIntern, onAssignTask }) {
   const handleClick = (action) => {
     if (action === 'add-intern'  && onAddIntern)  { onAddIntern();        return; }
     if (action === 'assign-task' && onAssignTask) { onAssignTask();       return; }
-    if (action === 'attendance')  navigate('/attendance');
-    if (action === 'dashboard')   navigate('/');
+    if (action === 'attendance') navigate('/attendance');
   };
 
   return (
