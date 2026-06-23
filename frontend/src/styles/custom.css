@@ -213,16 +213,20 @@ body {
   cursor: pointer;
   overflow: hidden;
   white-space: nowrap;
-  /* hidden by default — only ~14px sliver shows on left edge */
-  transform: translateX(-30px);
+  /* hidden by default — margin-left pushes it off-screen, only ~14px sliver shows.
+     Using margin-left (not transform) so entrance animations don't override it. */
+  margin-left: -30px;
+  transform: translateX(0);
   transition: width 0.28s cubic-bezier(0.4,0,0.2,1),
+              margin-left 0.25s cubic-bezier(0.4,0,0.2,1),
               box-shadow 0.22s,
-              transform 0.25s cubic-bezier(0.4,0,0.2,1);
+              transform 0.18s;
   box-shadow: 2px 2px 10px rgba(0,0,0,0.22);
   padding: 0;
 }
 .qa-btn:hover, .qa-btn--open {
   width: 182px;
+  margin-left: 0;
   box-shadow: 4px 4px 20px rgba(0,0,0,0.30);
   transform: translateX(4px);
 }
