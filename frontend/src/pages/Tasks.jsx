@@ -35,7 +35,7 @@ export default function Tasks() {
   const completed = tasks.filter((t) => t.status === 'completed').length;
 
   return (
-    <div>
+    <div className="page-enter">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 className="page-title mb-0">Tasks</h2>

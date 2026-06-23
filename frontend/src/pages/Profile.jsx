@@ -70,7 +70,7 @@ export default function Profile() {
   };
 
   return (
-    <div>
+    <div className="page-enter">
       <div className="mb-4">
         <h2 className="page-title mb-0">Admin Profile</h2>
         <p className="text-muted small mb-0">Manage your account settings</p>

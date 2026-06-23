@@ -24,7 +24,7 @@ export default function Attendance() {
   };
 
   return (
-    <div>
+    <div className="page-enter">
       <div className="mb-4">
         <h2 className="page-title mb-0">Attendance</h2>
         <p className="text-muted small mb-0">Mark and view intern attendance records</p>

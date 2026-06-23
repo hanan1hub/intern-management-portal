@@ -50,7 +50,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div>
+    <div className="page-enter">
       {/* Left-side quick actions panel */}
       <QuickActions
         onAddIntern={() => { setFormError(''); setShowInternForm(true); }}
@@ -71,10 +71,10 @@ export default function Dashboard() {
         <>
           {/* Stats row */}
           <div className="row g-4 mb-4">
-            <StatsCard title="Total Interns"    value={stats.totalInterns}   icon="bi-people-fill"      colorClass="bg-primary" />
-            <StatsCard title="Total Tasks"       value={stats.totalTasks}     icon="bi-list-task"        colorClass="bg-info"    />
-            <StatsCard title="Completed Tasks"   value={stats.completedTasks} icon="bi-check-circle-fill" colorClass="bg-success" />
-            <StatsCard title="Pending Tasks"     value={stats.pendingTasks}   icon="bi-hourglass-split"  colorClass="bg-warning" />
+            <StatsCard title="Total Interns"   value={stats.totalInterns}   icon="bi-people-fill"       colorClass="bg-primary" delay={0}   />
+            <StatsCard title="Total Tasks"     value={stats.totalTasks}     icon="bi-list-task"         colorClass="bg-info"    delay={80}  />
+            <StatsCard title="Completed Tasks" value={stats.completedTasks} icon="bi-check-circle-fill" colorClass="bg-success" delay={160} />
+            <StatsCard title="Pending Tasks"   value={stats.pendingTasks}   icon="bi-hourglass-split"   colorClass="bg-warning" delay={240} />
           </div>
 
           {/* Second row */}

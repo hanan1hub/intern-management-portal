@@ -51,7 +51,7 @@ export default function InternDetail() {
   if (!intern)       return null;
 
   return (
-    <div>
+    <div className="page-enter">
       <div className="mb-4">
         <button className="btn btn-sm btn-outline-secondary mb-3" onClick={() => navigate('/interns')}>
           <i className="bi bi-arrow-left me-1" />Back to Interns

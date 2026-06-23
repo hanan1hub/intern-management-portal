@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import { validateInternForm } from '../../utils/validators';
 
+// Extracts YYYY-MM-DD without timezone shift (avoids the off-by-one day bug
+// that occurs when the server sends a UTC Date string and the local timezone is UTC+N)
+const toInputDate = (dateStr) => {
+  if (!dateStr) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr; // already clean
+  const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return match ? `${match[1]}-${match[2]}-${match[3]}` : '';
+};
+
 const DEPARTMENTS = [
   'Computer Science', 'Data Science', 'Electrical Engineering',
   'Artificial Intelligence', 'Software Engineering', 'Mechanical Engineering',
@@ -13,7 +22,7 @@ const EMPTY = { name: '', email: '', department: '', joining_date: '' };
 export default function InternForm({ intern, onSubmit, onClose, error }) {
   const [form, setForm]     = useState(intern
     ? { name: intern.name, email: intern.email, department: intern.department,
-        joining_date: intern.joining_date?.split('T')[0] || '' }
+        joining_date: toInputDate(intern.joining_date) }
     : EMPTY);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
