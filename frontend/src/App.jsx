@@ -7,6 +7,7 @@ import Interns from './pages/Interns';
 import InternDetail from './pages/InternDetail';
 import Tasks from './pages/Tasks';
 import Attendance from './pages/Attendance';
+import Profile from './pages/Profile';
 
 function ProtectedLayout() {
   const { token } = useAuth();
@@ -35,6 +36,7 @@ export default function App() {
             <Route path="/interns/:id" element={<InternDetail />} />
             <Route path="/tasks"       element={<Tasks />} />
             <Route path="/attendance"  element={<Attendance />} />
+            <Route path="/profile"     element={<Profile />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
