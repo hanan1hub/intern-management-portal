@@ -6,24 +6,34 @@ import { extractError, formatDate } from '../utils/helpers';
 export default function Profile() {
   const { username, login: setAuth } = useAuth();
 
-  const [profile, setProfile]   = useState(null);
-  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [profile,        setProfile]        = useState(null);
+  const [loadingProfile, setLoadingProfile]  = useState(true);
 
   /* ── Username form ── */
-  const [uForm, setUForm]       = useState({ username: '' });
+  const [uForm,    setUForm]    = useState({ username: '' });
   const [uLoading, setULoading] = useState(false);
   const [uSuccess, setUSuccess] = useState('');
-  const [uError, setUError]     = useState('');
+  const [uError,   setUError]   = useState('');
+
+  /* ── Email form ── */
+  const [eForm,    setEForm]    = useState({ email: '' });
+  const [eLoading, setELoading] = useState(false);
+  const [eSuccess, setESuccess] = useState('');
+  const [eError,   setEError]   = useState('');
 
   /* ── Password form ── */
-  const [pForm, setPForm] = useState({ current_password: '', new_password: '', confirm: '' });
+  const [pForm,    setPForm]    = useState({ current_password: '', new_password: '', confirm: '' });
   const [pLoading, setPLoading] = useState(false);
   const [pSuccess, setPSuccess] = useState('');
-  const [pError, setPError]     = useState('');
+  const [pError,   setPError]   = useState('');
 
   useEffect(() => {
     getProfile()
-      .then((data) => { setProfile(data); setUForm({ username: data.username }); })
+      .then((data) => {
+        setProfile(data);
+        setUForm({ username: data.username });
+        setEForm({ email: data.email || '' });
+      })
       .catch((err) => setUError(extractError(err)))
       .finally(() => setLoadingProfile(false));
   }, []);
@@ -39,11 +49,26 @@ export default function Profile() {
       setProfile(res.admin);
       setAuth(res.token, res.admin.username, 'admin');
       setUSuccess('Username updated successfully!');
-    } catch (err) {
-      setUError(extractError(err));
-    } finally {
-      setULoading(false);
+    } catch (err) { setUError(extractError(err)); }
+    finally { setULoading(false); }
+  };
+
+  const handleEmailUpdate = async (e) => {
+    e.preventDefault();
+    setEError(''); setESuccess('');
+    const emailVal = eForm.email.trim();
+    if (emailVal === (profile.email || '')) { setEError('No change detected'); return; }
+    if (emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+      setEError('Enter a valid email address'); return;
     }
+    setELoading(true);
+    try {
+      const res = await updateProfile({ email: emailVal || null });
+      setProfile(res.admin);
+      setEForm({ email: res.admin.email || '' });
+      setESuccess('Email updated! You can now use Forgot Password on the login page.');
+    } catch (err) { setEError(extractError(err)); }
+    finally { setELoading(false); }
   };
 
   const handlePasswordUpdate = async (e) => {
@@ -57,16 +82,13 @@ export default function Profile() {
     try {
       const res = await updateProfile({
         current_password: pForm.current_password,
-        new_password: pForm.new_password,
+        new_password:     pForm.new_password,
       });
       setAuth(res.token, res.admin.username, 'admin');
       setPSuccess('Password changed successfully!');
       setPForm({ current_password: '', new_password: '', confirm: '' });
-    } catch (err) {
-      setPError(extractError(err));
-    } finally {
-      setPLoading(false);
-    }
+    } catch (err) { setPError(extractError(err)); }
+    finally { setPLoading(false); }
   };
 
   return (
@@ -85,18 +107,24 @@ export default function Profile() {
                 {(profile?.username || username || 'A').charAt(0).toUpperCase()}
               </div>
               <h5 className="fw-bold mb-1">{profile?.username || username}</h5>
-              <span className="badge bg-primary-subtle text-primary border border-primary-subtle mb-3">
+              <span className="badge bg-primary-subtle text-primary border border-primary-subtle mb-2">
                 Administrator
               </span>
-              {profile?.created_at && (
-                <p className="text-muted small mb-0">
-                  <i className="bi bi-calendar me-1" />
-                  Member since {formatDate(profile.created_at)}
+              {profile?.email ? (
+                <p className="text-muted small mb-2">
+                  <i className="bi bi-envelope me-1" />{profile.email}
+                </p>
+              ) : (
+                <p className="text-muted small mb-2" style={{ fontSize: '0.75rem' }}>
+                  <i className="bi bi-exclamation-circle text-warning me-1" />No email set — add one to enable Forgot Password
                 </p>
               )}
-              {loadingProfile && (
-                <div className="spinner-border spinner-border-sm text-primary mt-2" />
+              {profile?.created_at && (
+                <p className="text-muted small mb-0">
+                  <i className="bi bi-calendar me-1" />Member since {formatDate(profile.created_at)}
+                </p>
               )}
+              {loadingProfile && <div className="spinner-border spinner-border-sm text-primary mt-2" />}
             </div>
           </div>
         </div>
@@ -113,24 +141,14 @@ export default function Profile() {
                 </h6>
               </div>
               <div className="card-body">
-                {uSuccess && (
-                  <div className="alert alert-success py-2 small">
-                    <i className="bi bi-check-circle me-2" />{uSuccess}
-                  </div>
-                )}
-                {uError && (
-                  <div className="alert alert-danger py-2 small">
-                    <i className="bi bi-exclamation-triangle me-2" />{uError}
-                  </div>
-                )}
+                {uSuccess && <div className="alert alert-success py-2 small"><i className="bi bi-check-circle me-2" />{uSuccess}</div>}
+                {uError   && <div className="alert alert-danger  py-2 small"><i className="bi bi-exclamation-triangle me-2" />{uError}</div>}
                 <form onSubmit={handleUsernameUpdate}>
                   <div className="row g-3 align-items-end">
                     <div className="col-md-8">
                       <label className="form-label fw-medium">New Username</label>
                       <div className="input-group">
-                        <span className="input-group-text bg-light">
-                          <i className="bi bi-person text-muted" />
-                        </span>
+                        <span className="input-group-text bg-light"><i className="bi bi-person text-muted" /></span>
                         <input
                           className="form-control"
                           value={uForm.username}
@@ -141,9 +159,49 @@ export default function Profile() {
                     </div>
                     <div className="col-md-4">
                       <button className="btn btn-primary w-100" type="submit" disabled={uLoading}>
-                        {uLoading
-                          ? <><span className="spinner-border spinner-border-sm me-1" />Saving...</>
-                          : <><i className="bi bi-check-lg me-1" />Save</>}
+                        {uLoading ? <><span className="spinner-border spinner-border-sm me-1" />Saving...</> : <><i className="bi bi-check-lg me-1" />Save</>}
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            {/* Update email (needed for Forgot Password) */}
+            <div className="card border-0 shadow-sm">
+              <div className="card-header bg-white border-0 pb-0">
+                <h6 className="fw-bold mb-0">
+                  <i className="bi bi-envelope-fill me-2 text-info" />Recovery Email
+                </h6>
+              </div>
+              <div className="card-body">
+                <p className="text-muted small mb-3">
+                  This email is used for the <strong>Forgot Password</strong> feature on the login page.
+                </p>
+                {eSuccess && <div className="alert alert-success py-2 small"><i className="bi bi-check-circle me-2" />{eSuccess}</div>}
+                {eError   && <div className="alert alert-danger  py-2 small"><i className="bi bi-exclamation-triangle me-2" />{eError}</div>}
+                <form onSubmit={handleEmailUpdate}>
+                  <div className="row g-3 align-items-end">
+                    <div className="col-md-8">
+                      <label className="form-label fw-medium">Email Address</label>
+                      <div className="input-group">
+                        <span className="input-group-text bg-light"><i className="bi bi-envelope text-muted" /></span>
+                        <input
+                          type="text"
+                          inputMode="email"
+                          autoCorrect="off"
+                          autoCapitalize="none"
+                          spellCheck={false}
+                          className="form-control"
+                          value={eForm.email}
+                          onChange={(e) => setEForm({ email: e.target.value })}
+                          placeholder="admin@example.com"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-4">
+                      <button className="btn btn-info text-white w-100" type="submit" disabled={eLoading}>
+                        {eLoading ? <><span className="spinner-border spinner-border-sm me-1" />Saving...</> : <><i className="bi bi-check-lg me-1" />Save</>}
                       </button>
                     </div>
                   </div>
@@ -159,62 +217,37 @@ export default function Profile() {
                 </h6>
               </div>
               <div className="card-body">
-                {pSuccess && (
-                  <div className="alert alert-success py-2 small">
-                    <i className="bi bi-check-circle me-2" />{pSuccess}
-                  </div>
-                )}
-                {pError && (
-                  <div className="alert alert-danger py-2 small">
-                    <i className="bi bi-exclamation-triangle me-2" />{pError}
-                  </div>
-                )}
+                {pSuccess && <div className="alert alert-success py-2 small"><i className="bi bi-check-circle me-2" />{pSuccess}</div>}
+                {pError   && <div className="alert alert-danger  py-2 small"><i className="bi bi-exclamation-triangle me-2" />{pError}</div>}
                 <form onSubmit={handlePasswordUpdate}>
                   <div className="mb-3">
                     <label className="form-label fw-medium">Current Password</label>
                     <div className="input-group">
-                      <span className="input-group-text bg-light">
-                        <i className="bi bi-lock text-muted" />
-                      </span>
-                      <input
-                        type="password"
-                        className="form-control"
-                        value={pForm.current_password}
+                      <span className="input-group-text bg-light"><i className="bi bi-lock text-muted" /></span>
+                      <input type="password" className="form-control" value={pForm.current_password}
                         onChange={(e) => setPForm((p) => ({ ...p, current_password: e.target.value }))}
-                        placeholder="••••••••"
-                      />
+                        placeholder="••••••••" />
                     </div>
                   </div>
                   <div className="mb-3">
                     <label className="form-label fw-medium">New Password</label>
                     <div className="input-group">
-                      <span className="input-group-text bg-light">
-                        <i className="bi bi-lock-fill text-muted" />
-                      </span>
-                      <input
-                        type="password"
-                        className="form-control"
-                        value={pForm.new_password}
+                      <span className="input-group-text bg-light"><i className="bi bi-lock-fill text-muted" /></span>
+                      <input type="password" className="form-control" value={pForm.new_password}
                         onChange={(e) => setPForm((p) => ({ ...p, new_password: e.target.value }))}
-                        placeholder="Min. 6 characters"
-                      />
+                        placeholder="Min. 6 characters" />
                     </div>
                   </div>
                   <div className="mb-4">
                     <label className="form-label fw-medium">Confirm New Password</label>
                     <div className="input-group">
-                      <span className="input-group-text bg-light">
-                        <i className="bi bi-lock-fill text-muted" />
-                      </span>
+                      <span className="input-group-text bg-light"><i className="bi bi-lock-fill text-muted" /></span>
                       <input
                         type="password"
-                        className={`form-control ${
-                          pForm.confirm && pForm.confirm !== pForm.new_password ? 'is-invalid' : ''
-                        }`}
+                        className={`form-control ${pForm.confirm && pForm.confirm !== pForm.new_password ? 'is-invalid' : ''}`}
                         value={pForm.confirm}
                         onChange={(e) => setPForm((p) => ({ ...p, confirm: e.target.value }))}
-                        placeholder="Repeat new password"
-                      />
+                        placeholder="Repeat new password" />
                       {pForm.confirm && pForm.confirm !== pForm.new_password && (
                         <div className="invalid-feedback">Passwords do not match</div>
                       )}

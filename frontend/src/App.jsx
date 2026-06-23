@@ -3,7 +3,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar       from './components/common/Navbar';
 import InternNavbar from './components/intern/InternNavbar';
 
-import Login       from './pages/Login';
+import Login         from './pages/Login';
+import ResetPassword from './pages/ResetPassword';
 import Dashboard   from './pages/Dashboard';
 import Interns     from './pages/Interns';
 import InternDetail from './pages/InternDetail';
@@ -63,7 +64,8 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route path="/login"          element={<Login />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* Admin routes */}
           <Route element={<AdminLayout />}>
