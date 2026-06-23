@@ -2,21 +2,13 @@ import { formatDate, statusBadgeClass } from '../../utils/helpers';
 
 function deadlineInfo(deadline, status) {
   if (!deadline) return null;
-  const now = new Date();
-  const due = new Date(deadline);
-  const diffMs = due - now;
-  const diffH  = diffMs / (1000 * 60 * 60);
-
-  if (status === 'completed') {
-    return { label: `Due ${formatDate(deadline)}`, color: '#6b7280', icon: 'bi-calendar-check' };
-  }
-  if (diffMs < 0) {
-    return { label: `Overdue — ${formatDate(deadline)}`, color: '#dc2626', icon: 'bi-exclamation-circle-fill' };
-  }
-  if (diffH < 24) {
-    return { label: `Due today — ${formatDate(deadline)}`, color: '#d97706', icon: 'bi-alarm-fill' };
-  }
-  return { label: `Due ${formatDate(deadline)}`, color: '#2563eb', icon: 'bi-calendar-event' };
+  const now   = new Date();
+  const due   = new Date(deadline);
+  const diffH = (due - now) / 3600000;
+  if (status === 'completed') return { label: `Due ${formatDate(deadline)}`,                    color: '#6b7280', icon: 'bi-calendar-check'          };
+  if (diffH < 0)              return { label: `Overdue — ${formatDate(deadline)}`,              color: '#dc2626', icon: 'bi-exclamation-circle-fill'  };
+  if (diffH < 24)             return { label: `Due today — ${formatDate(deadline)}`,            color: '#d97706', icon: 'bi-alarm-fill'               };
+  return                             { label: `Due ${formatDate(deadline)}`,                    color: '#2563eb', icon: 'bi-calendar-event'           };
 }
 
 export default function TaskItem({ task, onToggle, loading }) {
@@ -61,6 +53,21 @@ export default function TaskItem({ task, onToggle, loading }) {
               </span>
             )}
           </div>
+
+          {/* Intern submission note */}
+          {task.submission_note && (
+            <div className="mt-2 p-2 rounded-3" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
+              <div className="small fw-semibold text-success mb-1">
+                <i className="bi bi-chat-left-text-fill me-1" />Intern&apos;s submission note
+              </div>
+              <div className="small text-muted">{task.submission_note}</div>
+              {task.submitted_at && (
+                <div className="small text-muted mt-1">
+                  <i className="bi bi-calendar-check me-1" />Submitted {formatDate(task.submitted_at)}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

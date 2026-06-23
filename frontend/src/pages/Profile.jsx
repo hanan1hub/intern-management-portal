@@ -37,7 +37,7 @@ export default function Profile() {
     try {
       const res = await updateProfile({ username: uForm.username });
       setProfile(res.admin);
-      setAuth(res.token, res.admin.username);
+      setAuth(res.token, res.admin.username, 'admin');
       setUSuccess('Username updated successfully!');
     } catch (err) {
       setUError(extractError(err));
@@ -59,7 +59,7 @@ export default function Profile() {
         current_password: pForm.current_password,
         new_password: pForm.new_password,
       });
-      setAuth(res.token, res.admin.username);
+      setAuth(res.token, res.admin.username, 'admin');
       setPSuccess('Password changed successfully!');
       setPForm({ current_password: '', new_password: '', confirm: '' });
     } catch (err) {

@@ -4,6 +4,7 @@ import { useInterns } from '../hooks/useInterns';
 import InternFilters from '../components/interns/InternFilters';
 import InternForm from '../components/interns/InternForm';
 import ConfirmModal from '../components/common/ConfirmModal';
+import CredentialsModal from '../components/common/CredentialsModal';
 import Loader from '../components/common/Loader';
 import ErrorAlert from '../components/common/ErrorAlert';
 import { formatDate, extractError } from '../utils/helpers';
@@ -17,11 +18,12 @@ const DEPARTMENTS = [
 
 export default function Interns() {
   const [filters, setFilters]       = useState({ search: '', department: '' });
-  const [showForm, setShowForm]     = useState(false);
-  const [editTarget, setEditTarget] = useState(null);
+  const [showForm, setShowForm]         = useState(false);
+  const [editTarget, setEditTarget]     = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [formError, setFormError]   = useState('');
-  const [deleting, setDeleting]     = useState(false);
+  const [newCredentials, setNewCredentials] = useState(null);
+  const [formError, setFormError]       = useState('');
+  const [deleting, setDeleting]         = useState(false);
 
   const { interns, loading, error, addIntern, editIntern, deleteIntern } = useInterns(filters);
 
@@ -32,8 +34,14 @@ export default function Interns() {
   const handleFormSubmit = async (data) => {
     setFormError('');
     try {
-      editTarget ? await editIntern(editTarget.id, data) : await addIntern(data);
-      closeForm();
+      if (editTarget) {
+        await editIntern(editTarget.id, data);
+        closeForm();
+      } else {
+        const created = await addIntern(data);
+        closeForm();
+        if (created?.generatedPassword) setNewCredentials(created);
+      }
     } catch (err) {
       setFormError(extractError(err));
     }
@@ -160,6 +168,13 @@ export default function Interns() {
           onConfirm={handleDelete}
           onClose={() => setDeleteTarget(null)}
           loading={deleting}
+        />
+      )}
+
+      {newCredentials && (
+        <CredentialsModal
+          intern={newCredentials}
+          onClose={() => setNewCredentials(null)}
         />
       )}
     </>

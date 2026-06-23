@@ -7,10 +7,10 @@ import ErrorAlert from '../components/common/ErrorAlert';
 import TaskForm from '../components/tasks/TaskForm';
 import InternForm from '../components/interns/InternForm';
 import { getStats } from '../api/dashboardApi';
-import { getAll as getAllInterns } from '../api/internsApi';
-import { create as createIntern } from '../api/internsApi';
+import { getAll as getAllInterns, create as createIntern } from '../api/internsApi';
 import { create as createTask } from '../api/tasksApi';
 import { extractError } from '../utils/helpers';
+import CredentialsModal from '../components/common/CredentialsModal';
 
 export default function Dashboard() {
   const [stats,   setStats]   = useState(null);
@@ -18,9 +18,10 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState('');
 
-  const [showInternForm, setShowInternForm] = useState(false);
-  const [showTaskForm,   setShowTaskForm]   = useState(false);
-  const [formError,      setFormError]      = useState('');
+  const [showInternForm,  setShowInternForm]  = useState(false);
+  const [showTaskForm,    setShowTaskForm]    = useState(false);
+  const [newCredentials,  setNewCredentials]  = useState(null);
+  const [formError,       setFormError]       = useState('');
 
   const load = () => {
     Promise.all([getStats(), getAllInterns()])
@@ -34,9 +35,10 @@ export default function Dashboard() {
   const handleAddIntern = async (data) => {
     setFormError('');
     try {
-      await createIntern(data);
+      const created = await createIntern(data);
       setShowInternForm(false);
       load();
+      if (created?.generatedPassword) setNewCredentials(created);
     } catch (err) { setFormError(extractError(err)); }
   };
 
@@ -207,6 +209,12 @@ export default function Dashboard() {
           onSubmit={handleAddTask}
           onClose={() => { setShowTaskForm(false); setFormError(''); }}
           error={formError}
+        />
+      )}
+      {newCredentials && (
+        <CredentialsModal
+          intern={newCredentials}
+          onClose={() => setNewCredentials(null)}
         />
       )}
     </>
