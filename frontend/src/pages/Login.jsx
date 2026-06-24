@@ -199,10 +199,14 @@ export default function Login() {
               </div>
             )}
 
-            {/* key={tab} forces a full DOM remount on tab switch,
-                preventing browser autocomplete/autocorrect from carrying
-                over stale values between Admin and Intern forms */}
+            {/* key={tab} forces full DOM remount on tab switch.
+                Honeypot hidden fields absorb browser credential autofill
+                so the visible inputs stay clean. */}
             <form key={tab} onSubmit={handleSubmit} noValidate autoComplete="off">
+              {/* Honeypot: browsers autofill these instead of the real inputs */}
+              <input type="text"     name="username" style={{ display: 'none' }} readOnly tabIndex={-1} />
+              <input type="password" name="password" style={{ display: 'none' }} readOnly tabIndex={-1} />
+
               <div className="mb-3">
                 <label className="form-label fw-medium">
                   {isAdmin ? 'Username' : 'Email Address'}
@@ -217,7 +221,7 @@ export default function Login() {
                     autoCorrect="off"
                     autoCapitalize="none"
                     spellCheck={false}
-                    autoComplete={isAdmin ? 'username' : 'email'}
+                    autoComplete="new-password"
                     className="form-control"
                     placeholder={isAdmin ? 'Enter username' : 'Enter your email'}
                     value={form.identifier}
@@ -238,7 +242,7 @@ export default function Login() {
                     placeholder="••••••••"
                     value={form.password}
                     onChange={set('password')}
-                    autoComplete="current-password"
+                    autoComplete="new-password"
                   />
                   <button
                     type="button"

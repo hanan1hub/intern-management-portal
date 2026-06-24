@@ -13,7 +13,11 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    if (error.response?.status === 401) {
+    const url = error.config?.url || '';
+    const isAuthEndpoint = url.includes('/auth/login') || url.includes('/auth/intern-login');
+    // Only clear session + redirect for 401s on protected routes,
+    // NOT on login endpoints (where 401 means wrong credentials, not expired session)
+    if (error.response?.status === 401 && !isAuthEndpoint) {
       localStorage.removeItem('token');
       localStorage.removeItem('username');
       localStorage.removeItem('role');
