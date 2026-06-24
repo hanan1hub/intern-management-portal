@@ -16,7 +16,11 @@ exports.getMe = async (req, res, next) => {
 exports.getMyTasks = async (req, res, next) => {
   try {
     const result = await pool.query(
-      `SELECT id, title, description, status, deadline, submission_note, submitted_at, created_at
+      `SELECT id, title, description, status, deadline,
+              submission_note, submitted_at,
+              submission_file_path, submission_file_original,
+              submission_file_mime, submission_file_size,
+              created_at
        FROM tasks WHERE intern_id = $1 ORDER BY created_at DESC`,
       [req.user.id]
     );
@@ -24,11 +28,11 @@ exports.getMyTasks = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-/* PUT /api/intern/tasks/:id/submit */
+/* PUT /api/intern/tasks/:id/submit  (multipart/form-data) */
 exports.submitTask = async (req, res, next) => {
   try {
     const { submission_note } = req.body;
-    // Verify this task belongs to the logged-in intern
+
     const check = await pool.query(
       'SELECT id FROM tasks WHERE id = $1 AND intern_id = $2',
       [req.params.id, req.user.id]
@@ -37,12 +41,24 @@ exports.submitTask = async (req, res, next) => {
 
     const result = await pool.query(
       `UPDATE tasks
-       SET status          = 'completed',
-           submission_note = $1,
-           submitted_at    = NOW()
-       WHERE id = $2 AND intern_id = $3
+       SET status                   = 'completed',
+           submission_note          = $1,
+           submitted_at             = NOW(),
+           submission_file_path     = COALESCE($2, submission_file_path),
+           submission_file_original = COALESCE($3, submission_file_original),
+           submission_file_mime     = COALESCE($4, submission_file_mime),
+           submission_file_size     = COALESCE($5, submission_file_size)
+       WHERE id = $6 AND intern_id = $7
        RETURNING *`,
-      [submission_note || null, req.params.id, req.user.id]
+      [
+        submission_note            || null,
+        req.file?.filename         || null,
+        req.file?.originalname     || null,
+        req.file?.mimetype         || null,
+        req.file?.size             || null,
+        req.params.id,
+        req.user.id,
+      ]
     );
     res.json(result.rows[0]);
   } catch (err) { next(err); }

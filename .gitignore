@@ -21,3 +21,7 @@ Thumbs.db
 # Editor
 .vscode/
 .idea/
+
+# Uploaded files (keep folder, ignore contents)
+backend/uploads/*
+!backend/uploads/.gitkeep
